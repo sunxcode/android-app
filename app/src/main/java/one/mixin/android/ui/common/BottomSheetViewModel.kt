@@ -29,6 +29,7 @@ import one.mixin.android.repository.ConversationRepository
 import one.mixin.android.repository.UserRepository
 import one.mixin.android.util.Session
 import one.mixin.android.util.encryptPin
+import one.mixin.android.vo.Account
 import one.mixin.android.vo.Address
 import one.mixin.android.vo.ConversationCategory
 import one.mixin.android.vo.Snapshot
@@ -165,4 +166,6 @@ class BottomSheetViewModel @Inject internal constructor(
     fun refreshUser(userId: String) {
         jobManager.addJobInBackground(RefreshUserJob(listOf(userId)))
     }
+
+    fun verifyPin(code: String): Observable<MixinResponse<Account>> = accountRepository.verifyPin(code)
 }

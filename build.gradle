@@ -57,6 +57,7 @@ buildscript {
         ext.jsoupVersion = '1.11.2'
         ext.isoparserVersion = '1.0.6'
         ext.largeImageViewVersion = '1.1.0'
+        ext.biometricpromptVersion = '1.0.1'
     }
 
     repositories {
