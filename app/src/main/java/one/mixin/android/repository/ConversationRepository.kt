@@ -16,8 +16,10 @@ import one.mixin.android.vo.Conversation
 import one.mixin.android.vo.ConversationItem
 import one.mixin.android.vo.ConversationItemMinimal
 import one.mixin.android.vo.MessageItem
+import one.mixin.android.vo.MessageMinimal
 import one.mixin.android.vo.Participant
 import one.mixin.android.vo.SearchMessageItem
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -85,13 +87,7 @@ internal constructor(
 
     fun getConversationIdIfExistsSync(recipientId: String) = conversationDao.getConversationIdIfExistsSync(recipientId)
 
-    fun makeMessageReadByConversationId(conversationId: String, accountId: String, messageId: String) {
-        appExecutors.diskIO().execute {
-            messageDao.makeMessageReadByConversationId(conversationId, accountId, messageId)
-        }
-    }
-
-    fun getUnreadMessage(conversationId: String, accountId: String, messageId: String): List<String> {
+    fun getUnreadMessage(conversationId: String, accountId: String, messageId: String): List<MessageMinimal> {
         return messageDao.getUnreadMessage(conversationId, accountId, messageId)
     }
 
@@ -109,6 +105,7 @@ internal constructor(
     fun updateMediaStatusStatus(status: String, messageId: String) = messageDao.updateMediaStatus(status, messageId)
 
     fun deleteMessage(id: String) = messageDao.deleteMessage(id)
+
     fun deleteConversationById(conversationId: String) {
         appExecutors.diskIO().execute {
             conversationDao.deleteConversationById(conversationId)
@@ -160,4 +157,8 @@ internal constructor(
 
     fun getLastMessageIdByConversationId(conversationId: String) =
         conversationDao.getLastMessageIdByConversationId(conversationId)
+
+    fun batchMarkRead(conversationId: String, userId: String, createdAt: String) {
+        messageDao.batchMarkRead(conversationId, userId, createdAt)
+    }
 }
