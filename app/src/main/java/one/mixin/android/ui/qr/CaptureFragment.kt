@@ -11,6 +11,7 @@ import android.graphics.Point
 import android.graphics.PorterDuff
 import android.media.AudioManager
 import android.net.Uri
+import android.net.UrlQuerySanitizer
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -62,6 +63,7 @@ import one.mixin.android.ui.home.MainActivity
 import one.mixin.android.ui.url.isMixinUrl
 import one.mixin.android.util.ErrorHandler
 import one.mixin.android.util.Session
+import one.mixin.android.util.UnescapeIgnorePlusUrlQuerySanitizer
 import one.mixin.android.vo.User
 import one.mixin.android.widget.CameraOpView
 import one.mixin.android.widget.PseudoNotificationView
@@ -112,6 +114,12 @@ class CaptureFragment : BaseFragment() {
     lateinit var viewModelFactory: ViewModelProvider.Factory
     private val captureViewModel: CaptureViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(CaptureViewModel::class.java)
+    }
+
+    private val sanitizer = UnescapeIgnorePlusUrlQuerySanitizer().apply {
+        allowUnregisteredParamaters = true
+        unregisteredParameterValueSanitizer = UrlQuerySanitizer.IllegalCharacterValueSanitizer(
+            UrlQuerySanitizer.IllegalCharacterValueSanitizer.ALL_OK)
     }
 
     private val springSystem = SpringSystem.create()
@@ -303,7 +311,10 @@ class CaptureFragment : BaseFragment() {
             val assetId = uri.getQueryParameter("asset")
             val amount = uri.getQueryParameter("amount")
             val trace = uri.getQueryParameter("trace")
-            val memo = uri.getQueryParameter("memo")
+
+            sanitizer.parseUrl(data)
+            val memo = sanitizer.getValue("memo")
+
             val transferRequest = TransferRequest(assetId, userId, amount, null, trace, memo)
             captureViewModel.pay(transferRequest).autoDisposable(scopeProvider).subscribe({ r ->
                 pb?.visibility = GONE
