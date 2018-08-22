@@ -1,6 +1,6 @@
 package one.mixin.android.ui.conversation
 
-import android.arch.lifecycle.Observer
+import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
@@ -45,30 +45,30 @@ class StickerAlbumFragment : BaseFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
         layoutInflater.inflate(R.layout.fragment_sticker_album, container, false)
 
+    @SuppressLint("CheckResult")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        stickerViewModel.getSystemAlbums().observe(this, Observer { r ->
-            r?.let {
-                albums.clear()
-                albums.addAll(r)
-                albumAdapter.notifyDataSetChanged()
-                context?.let { c ->
-                    for (i in 0 until albumAdapter.count) {
-                        val tabView = albumAdapter.getTabView(i, c) as FrameLayout
-                        album_tl.getTabAt(i)?.customView = tabView
-                        if (album_tl.selectedTabPosition == i) {
-                            tabView.setBackgroundResource(R.drawable.bg_sticker_tab)
-                        }
-                    }
-
-                    val slidingTabStrip = album_tl.getChildAt(0) as ViewGroup
-                    for (i in 0 until slidingTabStrip.childCount) {
-                        val v = slidingTabStrip.getChildAt(i)
-                        v.backgroundResource = 0
+        stickerViewModel.getSystemAlbums { r ->
+            albums.clear()
+            albums.addAll(r)
+            albumAdapter.notifyDataSetChanged()
+            context?.let { c ->
+                for (i in 0 until albumAdapter.count) {
+                    val tabView = albumAdapter.getTabView(i, c) as FrameLayout
+                    album_tl.getTabAt(i)?.customView = tabView
+                    if (album_tl.selectedTabPosition == i) {
+                        tabView.setBackgroundResource(R.drawable.bg_sticker_tab)
                     }
                 }
+
+                val slidingTabStrip = album_tl.getChildAt(0) as ViewGroup
+                for (i in 0 until slidingTabStrip.childCount) {
+                    val v = slidingTabStrip.getChildAt(i)
+                    v.backgroundResource = 0
+                }
             }
-        })
+        }
+
         view_pager.adapter = albumAdapter
         album_tl.setupWithViewPager(view_pager)
         album_tl.tabMode = TabLayout.MODE_SCROLLABLE

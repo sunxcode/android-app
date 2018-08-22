@@ -16,8 +16,11 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.experimental.DefaultDispatcher
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import one.mixin.android.Constants.PAGE_SIZE
 import one.mixin.android.MixinApplication
 import one.mixin.android.R
@@ -76,6 +79,7 @@ import one.mixin.android.vo.MessageStatus
 import one.mixin.android.vo.Participant
 import one.mixin.android.vo.QuoteMessageItem
 import one.mixin.android.vo.Sticker
+import one.mixin.android.vo.StickerAlbum
 import one.mixin.android.vo.User
 import one.mixin.android.vo.createAttachmentMessage
 import one.mixin.android.vo.createAudioMessage
@@ -429,7 +433,15 @@ internal constructor(
 
     fun transfer(transferRequest: TransferRequest) = assetRepository.transfer(transferRequest)
 
-    fun getSystemAlbums() = accountRepository.getSystemAlbums()
+    fun getSystemAlbums(callback: (List<StickerAlbum>) -> Unit) {
+        launch(UI) {
+            withContext(DefaultDispatcher) {
+                accountRepository.getSystemAlbums()
+            }.let {
+                callback(it)
+            }
+        }
+    }
 
     fun getPersonalAlbums() = accountRepository.getPersonalAlbums()
 

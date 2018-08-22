@@ -933,8 +933,6 @@ class ConversationFragment : LinkFragment(), OnKeyboardShownListener, OnKeyboard
             hideMediaLayout()
         }
 
-        initStickerLayout()
-
         if (isGroup || isBot) {
             menuAdapter.showTransfer = false
         }
